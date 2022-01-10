@@ -45,21 +45,6 @@ public class InterstitialAdController : MonoBehaviour
     {
         LoadStatus.text = "Loading...";
         _adsManager.Load(AdUnitId);
-
-        // For some reason in this version of SDK ads events don't work in Editor, that's why I have to check "Loaded" state in other way
-#if UNITY_EDITOR
-        StartCoroutine(LoadingAd(AdUnitId));
-#endif
-    }
-
-    private IEnumerator LoadingAd(string id)
-    {
-        while (!_adsManager.IsLoaded(id))
-        {
-            yield return null;
-        }
-
-        OnLoadedAd();
     }
 
     private void OnLoadedAd()
@@ -78,7 +63,11 @@ public class InterstitialAdController : MonoBehaviour
 
     private void OnClosedAd()
     {
-        StatusWindow?.SetActive(true);
+        if (StatusWindow != null)
+        {
+            StatusWindow.SetActive(true);
+        }
+        
         ResetAd();
     }
 

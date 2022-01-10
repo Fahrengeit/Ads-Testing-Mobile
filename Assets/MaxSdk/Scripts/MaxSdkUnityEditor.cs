@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using AppLovinMax.ThirdParty.MiniJson;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -439,7 +440,7 @@ public class MaxSdkUnityEditor : MaxSdkBase
     {
         ValidateAdUnitIdentifier(adUnitIdentifier, "set banner custom postback data");
     }
-    
+
     /// <summary>
     /// The banner position on the screen. When setting the banner position via <see cref="CreateBanner(string, float, float)"/> or <see cref="UpdateBannerPosition(string, float, float)"/>,
     /// the banner is placed within the safe area of the screen. This returns the absolute position of the banner on screen.
@@ -568,7 +569,7 @@ public class MaxSdkUnityEditor : MaxSdkBase
     {
         ValidateAdUnitIdentifier(adUnitIdentifier, "set MREC custom postback data");
     }
-    
+
     /// <summary>
     /// The MREC position on the screen. When setting the MREC position via <see cref="CreateMRec(string, float, float)"/> or <see cref="UpdateMRecPosition(string, float, float)"/>,
     /// the MREC is placed within the safe area of the screen. This returns the absolute position of the MREC on screen.
@@ -690,7 +691,9 @@ public class MaxSdkUnityEditor : MaxSdkBase
         ExecuteWithDelay(1f, () =>
         {
             AddReadyAdUnit(adUnitIdentifier);
-            MaxSdkCallbacks.Instance.ForwardEvent("name=OnInterstitialLoadedEvent\nadUnitId=" + adUnitIdentifier);
+
+            var eventProps = Json.Serialize(CreateBaseEventPropsDictionary("OnInterstitialLoadedEvent", adUnitIdentifier));
+            MaxSdkCallbacks.Instance.ForwardEvent(eventProps);
         });
     }
 
@@ -765,11 +768,13 @@ public class MaxSdkUnityEditor : MaxSdkBase
         interstitialText.text += ":\n" + adUnitIdentifier;
         closeButton.onClick.AddListener(() =>
         {
-            MaxSdkCallbacks.Instance.ForwardEvent("name=OnInterstitialHiddenEvent\nadUnitId=" + adUnitIdentifier);
+            var adHiddenEventProps = Json.Serialize(CreateBaseEventPropsDictionary("OnInterstitialHiddenEvent", adUnitIdentifier));
+            MaxSdkCallbacks.Instance.ForwardEvent(adHiddenEventProps);
             Object.Destroy(stubInterstitial);
         });
 
-        MaxSdkCallbacks.Instance.ForwardEvent("name=OnInterstitialDisplayedEvent\nadUnitId=" + adUnitIdentifier);
+        var adDisplayedEventProps = Json.Serialize(CreateBaseEventPropsDictionary("OnInterstitialDisplayedEvent", adUnitIdentifier));
+        MaxSdkCallbacks.Instance.ForwardEvent(adDisplayedEventProps);
 #endif
     }
 
@@ -793,7 +798,7 @@ public class MaxSdkUnityEditor : MaxSdkBase
     {
         ValidateAdUnitIdentifier(adUnitIdentifier, "set interstitial custom postback data");
     }
-    
+
     #endregion
 
     #region Rewarded
@@ -810,7 +815,8 @@ public class MaxSdkUnityEditor : MaxSdkBase
         ExecuteWithDelay(1f, () =>
         {
             AddReadyAdUnit(adUnitIdentifier);
-            MaxSdkCallbacks.Instance.ForwardEvent("name=OnRewardedAdLoadedEvent\nadUnitId=" + adUnitIdentifier);
+            var eventProps = Json.Serialize(CreateBaseEventPropsDictionary("OnRewardedAdLoadedEvent", adUnitIdentifier));
+            MaxSdkCallbacks.Instance.ForwardEvent(eventProps);
         });
     }
 
@@ -890,10 +896,15 @@ public class MaxSdkUnityEditor : MaxSdkBase
         {
             if (grantedReward)
             {
-                MaxSdkCallbacks.Instance.ForwardEvent("name=OnRewardedAdReceivedRewardEvent\nadUnitId=" + adUnitIdentifier + "\nrewardLabel=coins\nrewardAmount=5");
+                var rewardEventPropsDict = CreateBaseEventPropsDictionary("OnRewardedAdReceivedRewardEvent", adUnitIdentifier);
+                rewardEventPropsDict["rewardLabel"] = "coins";
+                rewardEventPropsDict["rewardAmount"] = "5";
+                var rewardEventProps = Json.Serialize(rewardEventPropsDict);
+                MaxSdkCallbacks.Instance.ForwardEvent(rewardEventProps);
             }
 
-            MaxSdkCallbacks.Instance.ForwardEvent("name=OnRewardedAdHiddenEvent\nadUnitId=" + adUnitIdentifier);
+            var adHiddenEventProps = Json.Serialize(CreateBaseEventPropsDictionary("OnRewardedAdHiddenEvent", adUnitIdentifier));
+            MaxSdkCallbacks.Instance.ForwardEvent(adHiddenEventProps);
             Object.Destroy(stubRewardedAd);
         });
         rewardButton.onClick.AddListener(() =>
@@ -902,7 +913,8 @@ public class MaxSdkUnityEditor : MaxSdkBase
             rewardStatus.text = "Reward granted. Will send reward callback on ad close.";
         });
 
-        MaxSdkCallbacks.Instance.ForwardEvent("name=OnRewardedAdDisplayedEvent\nadUnitId=" + adUnitIdentifier);
+        var adDisplayedEventProps = Json.Serialize(CreateBaseEventPropsDictionary("OnRewardedAdDisplayedEvent", adUnitIdentifier));
+        MaxSdkCallbacks.Instance.ForwardEvent(adDisplayedEventProps);
 #endif
     }
 
@@ -926,7 +938,7 @@ public class MaxSdkUnityEditor : MaxSdkBase
     {
         ValidateAdUnitIdentifier(adUnitIdentifier, "set rewarded custom postback data");
     }
-    
+
     #endregion
 
     #region Rewarded Interstitial
@@ -943,7 +955,8 @@ public class MaxSdkUnityEditor : MaxSdkBase
         ExecuteWithDelay(1f, () =>
         {
             AddReadyAdUnit(adUnitIdentifier);
-            MaxSdkCallbacks.Instance.ForwardEvent("name=OnRewardedInterstitialAdLoadedEvent\nadUnitId=" + adUnitIdentifier);
+            var eventProps = Json.Serialize(CreateBaseEventPropsDictionary("OnRewardedInterstitialAdLoadedEvent", adUnitIdentifier));
+            MaxSdkCallbacks.Instance.ForwardEvent(eventProps);
         });
     }
 
@@ -1023,10 +1036,15 @@ public class MaxSdkUnityEditor : MaxSdkBase
         {
             if (grantedReward)
             {
-                MaxSdkCallbacks.Instance.ForwardEvent("name=OnRewardedInterstitialAdReceivedRewardEvent\nadUnitId=" + adUnitIdentifier + "\nrewardLabel=coins\nrewardAmount=5");
+                var rewardEventPropsDict = CreateBaseEventPropsDictionary("OnRewardedInterstitialAdReceivedRewardEvent", adUnitIdentifier);
+                rewardEventPropsDict["rewardLabel"] = "coins";
+                rewardEventPropsDict["rewardAmount"] = "5";
+                var rewardEventProps = Json.Serialize(rewardEventPropsDict);
+                MaxSdkCallbacks.Instance.ForwardEvent(rewardEventProps);
             }
 
-            MaxSdkCallbacks.Instance.ForwardEvent("name=OnRewardedInterstitialAdHiddenEvent\nadUnitId=" + adUnitIdentifier);
+            var adHiddenEventProps = Json.Serialize(CreateBaseEventPropsDictionary("OnRewardedInterstitialAdHiddenEvent", adUnitIdentifier));
+            MaxSdkCallbacks.Instance.ForwardEvent(adHiddenEventProps);
             Object.Destroy(stubRewardedAd);
         });
         rewardButton.onClick.AddListener(() =>
@@ -1035,7 +1053,8 @@ public class MaxSdkUnityEditor : MaxSdkBase
             rewardStatus.text = "Reward granted. Will send reward callback on ad close.";
         });
 
-        MaxSdkCallbacks.Instance.ForwardEvent("name=OnRewardedInterstitialAdDisplayedEvent\nadUnitId=" + adUnitIdentifier);
+        var adDisplayedEventProps = Json.Serialize(CreateBaseEventPropsDictionary("OnRewardedAdDisplayedEvent", adUnitIdentifier));
+        MaxSdkCallbacks.Instance.ForwardEvent(adDisplayedEventProps);
 #endif
     }
 
@@ -1059,7 +1078,7 @@ public class MaxSdkUnityEditor : MaxSdkBase
     {
         ValidateAdUnitIdentifier(adUnitIdentifier, "set rewarded interstitial custom postback data");
     }
-    
+
     #endregion
 
     #region Event Tracking
@@ -1195,6 +1214,15 @@ public class MaxSdkUnityEditor : MaxSdkBase
         if (_isInitialized) return;
         MaxSdkLogger.UserWarning(
             "MAX Ads SDK is not initialized by the time ad is requested. Please call Max.InitializeSdk() in your first scene");
+    }
+
+    private static Dictionary<string, string> CreateBaseEventPropsDictionary(string eventName, string adUnitId)
+    {
+        return new Dictionary<string, string>
+        {
+            ["name"] = eventName,
+            ["adUnitId"] = adUnitId
+        };
     }
 
     private static void ExecuteWithDelay(float seconds, Action action)
