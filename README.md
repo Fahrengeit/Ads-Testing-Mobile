@@ -10,7 +10,7 @@ To get started with the application, follow the instructions below:
 2. Choose your mobile platform (Android or iOS). This application was tested on iOS.
 3. Update the iOS bundle identifier or Android package name with your own identifer that is connected to your MAX account.
 4. Open the AdScene scene and navigate to AdController game object.
-5. Update **MaxSdkKey** with your AppLovin SDK key that's associated with your account.
+5. Update **MaxSdkKey** in **AppLovinController** with your AppLovin SDK key that's associated with your account.
 6. Update **AdUnitId** in  **InterstitialAdController** and **RewardedAdController** scripts with MAX ad unit IDs that you should create in MAX dashboard.
 7. Build.
 
